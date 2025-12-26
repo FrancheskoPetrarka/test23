@@ -3,135 +3,625 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>clever.txt ☘️</title>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;700&family=Montserrat:wght@400;900&family=Playfair+Display&family=Kelly+Slab&display=swap" rel="stylesheet">
+    <title>clever.txt | Professional Editor ☘️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Bad+Script&family=Caveat:wght@400;700&family=Comfortaa:wght@300;700&family=EB+Garamond:ital@0;1&family=Kelly+Slab&family=Lobster&family=Montserrat:wght@100;400;900&family=Oswald:wght@200;700&family=Pacifico&family=Playfair+Display:ital,wght@0,400;0,900;1,400&family=Press+Start+2P&family=Roboto+Mono:wght@100;700&family=Ruslan+Display&family=Underdog&family=Yeseva+One&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f4f7f6; --accent: #27ae60; }
-        body { margin: 0; background: var(--bg); font-family: 'Montserrat', sans-serif; display: flex; flex-direction: column; height: 100vh; }
-        
-        .header { background: #fff; padding: 10px 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #ddd; }
-        .logo { font-weight: 900; font-size: 1.5rem; color: var(--accent); display: flex; align-items: center; gap: 10px; }
-        .logo-box { width: 30px; height: 30px; background: var(--accent); border-radius: 6px; rotate: 45deg; }
-        
-        .toolbar { background: #fff; padding: 10px; display: flex; gap: 10px; flex-wrap: wrap; border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10; justify-content: center; }
-        .btn-group { display: flex; gap: 5px; background: #f9f9f9; padding: 5px; border-radius: 8px; }
-        
-        button, select { border: 1px solid #eee; background: white; padding: 8px; border-radius: 5px; cursor: pointer; font-size: 14px; }
-        button:hover { background: var(--accent); color: white; border-color: var(--accent); }
-        
-        .viewport { flex: 1; overflow-y: auto; padding: 40px 20px; display: flex; justify-content: center; }
-        #editor { 
-            width: 210mm; min-height: 297mm; background: white; padding: 20mm; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); outline: none; box-sizing: border-box; 
-            line-height: 1.6; font-size: 12pt; transition: 0.3s;
+        :root {
+            --accent: #27ae60;
+            --accent-hover: #219150;
+            --bg-main: #f0f2f5;
+            --panel-bg: #ffffff;
+            --text-dark: #2c3e50;
+            --border-color: #dcdde1;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .share-panel { font-size: 12px; display: flex; flex-direction: column; gap: 5px; }
-        .share-url { font-family: monospace; background: #eee; padding: 5px; border-radius: 4px; border: 1px solid #ccc; width: 250px; }
-        
-        /* Стили бумаги */
-        .lined { background-image: repeating-linear-gradient(#fff, #fff 31px, #eef0f1 32px); }
-        .grid { background-image: radial-gradient(#d1d1d1 1px, transparent 1px); background-size: 25px 25px; }
-        
-        [contenteditable="false"] { cursor: default; }
+        /* Общие стили и скролл */
+        * { box-sizing: border-box; outline: none; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-main); }
+        ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-main);
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER & LOGO */
+        header {
+            background: var(--panel-bg);
+            padding: 10px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .clover-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--accent);
+            position: relative;
+            clip-path: polygon(50% 0%, 100% 35%, 80% 100%, 50% 80%, 20% 100%, 0% 35%);
+            transition: var(--transition);
+        }
+
+        .logo-group:hover .clover-icon {
+            transform: rotate(15deg) scale(1.1);
+            filter: brightness(1.2);
+        }
+
+        .logo-text {
+            font-weight: 900;
+            font-size: 1.6rem;
+            letter-spacing: -1px;
+            background: linear-gradient(45deg, var(--accent), #2ecc71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* SHARING PANEL */
+        .sharing-center {
+            display: flex;
+            gap: 15px;
+        }
+
+        .link-card {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 5px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: var(--transition);
+        }
+
+        .link-card:hover { border-color: var(--accent); background: #fff; }
+
+        .link-card label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #95a5a6;
+            text-transform: uppercase;
+        }
+
+        .link-card input {
+            border: none;
+            background: transparent;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dark);
+            width: 180px;
+        }
+
+        /* TOOLBAR */
+        .main-toolbar {
+            background: var(--panel-bg);
+            padding: 8px 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            z-index: 999;
+        }
+
+        .tool-group {
+            display: flex;
+            align-items: center;
+            background: #f1f2f6;
+            padding: 4px;
+            border-radius: 10px;
+            gap: 2px;
+        }
+
+        .tool-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #57606f;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tool-btn:hover {
+            background: #fff;
+            color: var(--accent);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tool-btn.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        select.tool-select {
+            border: none;
+            background: transparent;
+            padding: 5px;
+            font-weight: 600;
+            color: #57606f;
+            cursor: pointer;
+        }
+
+        .color-picker-wrapper {
+            position: relative;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid #fff;
+            box-shadow: 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        input[type="color"].invisible-picker {
+            position: absolute;
+            top: -10px; left: -10px;
+            width: 60px; height: 60px;
+            cursor: pointer;
+        }
+
+        /* VIEWPORT & EDITOR */
+        .editor-viewport {
+            flex: 1;
+            overflow-y: auto;
+            padding: 60px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            scroll-behavior: smooth;
+        }
+
+        .canvas-container {
+            position: relative;
+            width: 210mm;
+            transition: var(--transition);
+        }
+
+        #editor {
+            width: 100%;
+            min-height: 297mm;
+            background: #ffffff;
+            padding: 25mm 20mm;
+            box-shadow: var(--shadow);
+            outline: none;
+            color: #1e272e;
+            font-size: 12pt;
+            line-height: 1.8;
+            position: relative;
+            border-radius: 4px;
+            word-wrap: break-word;
+        }
+
+        /* BACKGROUND STYLES */
+        .paper-lined { background-image: repeating-linear-gradient(#fff, #fff 31px, #f1f2f6 32px) !important; }
+        .paper-grid { background-image: 
+            linear-gradient(to right, #f1f2f6 1px, transparent 1px),
+            linear-gradient(to bottom, #f1f2f6 1px, transparent 1px) !important;
+            background-size: 30px 30px !important; }
+        .paper-dark { background-color: #2c3e50 !important; color: #ecf0f1 !important; }
+
+        /* IMAGE STYLES */
+        #editor img {
+            max-width: 100%;
+            border-radius: 8px;
+            transition: var(--transition);
+            cursor: pointer;
+            display: block;
+            margin: 15px auto;
+        }
+
+        #editor img:hover { transform: scale(1.02); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+        /* FLOATING ACTION BUTTON */
+        .fab-save {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 70px;
+            height: 70px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 24px;
+            box-shadow: 0 10px 25px rgba(39, 174, 96, 0.4);
+            cursor: pointer;
+            transition: var(--transition);
+            z-index: 2000;
+            border: none;
+        }
+
+        .fab-save:hover { transform: scale(1.1) rotate(90deg); background: var(--accent-hover); }
+
+        /* MOBILE ADAPTATION */
+        @media (max-width: 900px) {
+            .canvas-container { width: 100%; }
+            #editor { padding: 15mm 10mm; }
+            .main-toolbar { padding: 15px 5px; }
+            .sharing-center { display: none; }
+            .fab-save { bottom: 20px; right: 20px; width: 60px; height: 60px; }
+        }
+
+        /* STATUS INDICATOR */
+        .status-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            padding: 5px 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            color: #7f8c8d;
+        }
+
+        .online-dot {
+            width: 8px; height: 8px;
+            background: #e74c3c;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .online-dot.active { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="logo"><div class="logo-box"></div> clever.txt</div>
-    <div class="share-panel">
-        <div>Редактирование: <input class="share-url" id="edit-url" readonly></div>
-        <div>Только просмотр: <input class="share-url" id="view-url" readonly></div>
+<header>
+    <div class="logo-group" onclick="location.reload()">
+        <div class="clover-icon"></div>
+        <div class="logo-text">clever.txt</div>
     </div>
-</div>
+    <div class="sharing-center">
+        <div class="link-card">
+            <label>Edit</label>
+            <input type="text" id="edit-url" readonly onclick="this.select()">
+            <button class="tool-btn" onclick="copyValue('edit-url')">📋</button>
+        </div>
+        <div class="link-card">
+            <label>View</label>
+            <input type="text" id="view-url" readonly onclick="this.select()">
+            <button class="tool-btn" onclick="copyValue('view-url')">📋</button>
+        </div>
+    </div>
+</header>
 
-<div class="toolbar" id="main-toolbar">
-    <div class="btn-group">
-        <select onchange="document.execCommand('fontName', false, this.value)">
+<div class="main-toolbar" id="toolbar">
+    <div class="tool-group">
+        <select class="tool-select" id="fontSetter" onchange="exec('fontName', this.value)">
             <option value="Montserrat">Montserrat</option>
+            <option value="Playfair Display">Playfair Display</option>
             <option value="Kelly Slab">Kelly Slab</option>
-            <option value="Playfair Display">Playfair</option>
-            <option value="Courier New">Monospace</option>
+            <option value="Caveat">Caveat (Hand)</option>
+            <option value="Roboto Mono">Code Mono</option>
+            <option value="Lobster">Lobster Style</option>
+            <option value="Ruslan Display">Old Style</option>
+            <option value="Press Start 2P">Retro 8-Bit</option>
         </select>
-        <input type="color" oninput="document.execCommand('foreColor', false, this.value)" title="Цвет текста">
+        <select class="tool-select" onchange="exec('fontSize', this.value)">
+            <option value="3">Size: 14pt</option>
+            <option value="4">16pt</option>
+            <option value="5">18pt</option>
+            <option value="6">24pt</option>
+            <option value="7">32pt</option>
+        </select>
     </div>
-    <div class="btn-group">
-        <button onclick="document.execCommand('bold')"><b>B</b></button>
-        <button onclick="document.execCommand('italic')"><i>I</i></button>
-        <button onclick="document.execCommand('insertUnorderedList')">• Спиок</button>
-        <button onclick="const url = prompt('URL фото:'); if(url) document.execCommand('insertImage', false, url)">🖼 Фото</button>
+
+    <div class="tool-group">
+        <button class="tool-btn" onclick="exec('bold')" title="Жирный"><b>B</b></button>
+        <button class="tool-btn" onclick="exec('italic')" title="Курсив"><i>I</i></button>
+        <button class="tool-btn" onclick="exec('underline')" title="Подчеркнутый"><u>U</u></button>
+        <button class="tool-btn" onclick="exec('strikeThrough')" title="Зачеркнутый"><s>S</s></button>
     </div>
-    <div class="btn-group">
-        <button onclick="document.getElementById('editor').className = 'lined'">Линии</button>
-        <button onclick="document.getElementById('editor').className = 'grid'">Клетка</button>
-        <button onclick="document.getElementById('editor').className = ''">Чистый</button>
+
+    <div class="tool-group">
+        <div class="color-picker-wrapper" title="Цвет текста">
+            <input type="color" class="invisible-picker" oninput="exec('foreColor', this.value)">
+        </div>
+        <button class="tool-btn" onclick="exec('insertUnorderedList')">Bullet List</button>
+        <button class="tool-btn" onclick="exec('insertOrderedList')">Num List</button>
     </div>
-    <button onclick="saveDoc()" id="save-btn" style="background: var(--accent); color: white;">СОХРАНИТЬ В ОБЛАКО</button>
+
+    <div class="tool-group">
+        <button class="tool-btn" onclick="exec('justifyLeft')">⬅</button>
+        <button class="tool-btn" onclick="exec('justifyCenter')">⬆</button>
+        <button class="tool-btn" onclick="exec('justifyRight')">➡</button>
+        <button class="tool-btn" onclick="exec('justifyFull')">≡</button>
+    </div>
+
+    <div class="tool-group">
+        <button class="tool-btn" onclick="setPaper('paper-lined')">Lines</button>
+        <button class="tool-btn" onclick="setPaper('paper-grid')">Grid</button>
+        <button class="tool-btn" onclick="setPaper('')">Clean</button>
+        <button class="tool-btn" onclick="toggleDarkMode()">🌙</button>
+    </div>
+
+    <div class="tool-group">
+        <button class="tool-btn" onclick="insertImage()" title="Вставить фото">🖼 Image</button>
+        <button class="tool-btn" onclick="window.print()">📄 PDF</button>
+    </div>
 </div>
 
-<div class="viewport">
-    <div id="editor" contenteditable="true" class="lined">
-        <h1>Твой новый документ 🍀</h1>
-        <p>Начни писать дерзко. Все сохранится по ссылке сверху.</p>
+<div class="editor-viewport" id="viewport">
+    <div class="canvas-container">
+        <div id="editor" contenteditable="true" spellcheck="false">
+            <h1 style="text-align: center;">Добро пожаловать в Clever.txt 🍀</h1>
+            <p>Это твой <b>дерзкий</b> и быстрый облачный редактор. Все изменения сохраняются на лету в твою личную базу данных.</p>
+            <p><i>Попробуй перетащить сюда картинку или измени шрифт на более безумный!</i></p>
+            <hr>
+            <blockquote>Цитаты тоже работают. Просто выдели текст и начни творить.</blockquote>
+        </div>
     </div>
+</div>
+
+<button class="fab-save" id="saveFab" onclick="forceSave()" title="Принудительное сохранение">
+    ☘️
+</button>
+
+<div class="status-bar">
+    <div>
+        <span class="online-dot" id="net-status"></span>
+        <span id="status-text">ПОДКЛЮЧЕНИЕ К СЕРВЕРУ...</span>
+    </div>
+    <div id="word-count">Слов: 0 | Символов: 0</div>
+    <div id="last-save">Последнее сохранение: никогда</div>
 </div>
 
 <script>
-    const API_BASE = "https://unharrowed-darleen-dismayingly.ngrok-free.dev";
+    /**
+     * CONFIGURATION
+     */
+    const API_HOST = "https://unharrowed-darleen-dismayingly.ngrok-free.dev";
     const editor = document.getElementById('editor');
+    const netStatus = document.getElementById('net-status');
+    const statusText = document.getElementById('status-text');
     
-    // Работа с URL
+    // Инстанс документа
     const params = new URLSearchParams(window.location.search);
     let docId = params.get('id');
-    const isViewOnly = params.get('view') === 'true';
+    const readOnly = params.get('view') === 'true';
 
-    // Если ID нет — создаем новый
-    if (!docId) {
-        docId = 'doc_' + Math.random().toString(36).substr(2, 9);
-        window.history.replaceState(null, '', `?id=${docId}`);
+    /**
+     * INITIALIZATION
+     */
+    window.onload = () => {
+        setupDocumentId();
+        if (readOnly) initReadOnlyMode();
+        setupAutoSave();
+        loadDocumentContent();
+        updateWordCount();
+        initDragAndDrop();
+    };
+
+    function setupDocumentId() {
+        if (!docId) {
+            docId = 'clever_' + Math.random().toString(36).substr(2, 12);
+            window.history.replaceState(null, '', `?id=${docId}`);
+        }
+        
+        const fullUrl = window.location.href.split('&')[0];
+        document.getElementById('edit-url').value = fullUrl;
+        document.getElementById('view-url').value = fullUrl + '&view=true';
     }
 
-    // Настройка ссылок
-    const currentBase = window.location.origin + window.location.pathname;
-    document.getElementById('edit-url').value = `${currentBase}?id=${docId}`;
-    document.getElementById('view-url').value = `${currentBase}?id=${docId}&view=true`;
-
-    // Режим просмотра
-    if (isViewOnly) {
+    function initReadOnlyMode() {
         editor.contentEditable = "false";
-        document.getElementById('main-toolbar').style.display = "none";
-        document.title = "Просмотр документа | clever.txt";
+        document.getElementById('toolbar').style.display = "none";
+        document.getElementById('saveFab').style.display = "none";
+        document.body.style.background = "#fff";
+        document.title = "Просмотр: " + docId;
     }
 
-    // Загрузка данных
-    async function loadDoc() {
-        try {
-            const res = await fetch(`${API_BASE}/load/${docId}`);
-            const data = await res.json();
-            if (data.content) editor.innerHTML = data.content;
-        } catch (e) { console.log("Документ новый или сервер спит"); }
+    /**
+     * CORE EDITOR FUNCTIONS
+     */
+    function exec(command, value = null) {
+        document.execCommand(command, false, value);
+        editor.focus();
     }
 
-    // Сохранение
-    async function saveDoc() {
-        const btn = document.getElementById('save-btn');
-        btn.innerText = "СОХРАНЯЕМ...";
+    function setPaper(style) {
+        editor.className = style;
+        localStorage.setItem('clever_pref_style', style);
+    }
+
+    function toggleDarkMode() {
+        document.body.classList.toggle('paper-dark');
+        const isDark = document.body.classList.contains('paper-dark');
+        editor.classList.toggle('paper-dark', isDark);
+    }
+
+    function insertImage() {
+        const url = prompt("Вставь URL изображения (jpg, png, gif):");
+        if (url) {
+            const imgHtml = `<img src="${url}" alt="Image" ontouchstart="imgAction(this)">`;
+            exec('insertHTML', imgHtml);
+        }
+    }
+
+    function copyValue(id) {
+        const input = document.getElementById(id);
+        input.select();
+        document.execCommand('copy');
+        showToast("Ссылка скопирована!");
+    }
+
+    /**
+     * NETWORK LOGIC
+     */
+    async function loadDocumentContent() {
+        updateNetIndicator(false, "ЗАГРУЗКА...");
         try {
-            await fetch(`${API_BASE}/save`, {
+            const response = await fetch(`${API_HOST}/load/${docId}?cache_bust=${Date.now()}`);
+            if (!response.ok) throw new Error("Server error");
+            
+            const data = await response.json();
+            if (data.content && data.content.trim() !== "") {
+                editor.innerHTML = data.content;
+                updateNetIndicator(true, "ОБЛАКО СИНХРОНИЗИРОВАНО");
+            } else {
+                updateNetIndicator(true, "НОВЫЙ ДОКУМЕНТ");
+            }
+        } catch (e) {
+            updateNetIndicator(false, "ОФФЛАЙН РЕЖИМ");
+            const localBackup = localStorage.getItem('backup_' + docId);
+            if (localBackup) editor.innerHTML = localBackup;
+        }
+    }
+
+    async function forceSave() {
+        const fab = document.getElementById('saveFab');
+        fab.style.transform = "rotate(360deg) scale(1.2)";
+        await performSave();
+        setTimeout(() => fab.style.transform = "", 600);
+    }
+
+    async function performSave() {
+        if (readOnly) return;
+
+        const content = editor.innerHTML;
+        localStorage.setItem('backup_' + docId, content);
+
+        try {
+            const response = await fetch(`${API_HOST}/save`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: docId, content: editor.innerHTML })
+                body: JSON.stringify({ id: docId, content: content })
             });
-            btn.innerText = "СОХРАНЕНО! ☘️";
+
+            if (response.ok) {
+                updateNetIndicator(true, "ИЗМЕНЕНИЯ СОХРАНЕНЫ");
+                updateLastSaveTime();
+            } else {
+                throw new Error();
+            }
         } catch (e) {
-            btn.innerText = "ОШИБКА СЕРВЕРА";
-            console.error(e);
+            updateNetIndicator(false, "ОШИБКА СОХРАНЕНИЯ");
         }
-        setTimeout(() => btn.innerText = "СОХРАНИТЬ В ОБЛАКО", 2000);
     }
 
-    loadDoc();
+    /**
+     * UTILS
+     */
+    function updateNetIndicator(online, text) {
+        netStatus.className = "online-dot" + (online ? " active" : "");
+        statusText.innerText = text;
+    }
+
+    function updateLastSaveTime() {
+        const now = new Date();
+        document.getElementById('last-save').innerText = `Сохранено в ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+    }
+
+    function updateWordCount() {
+        const text = editor.innerText || "";
+        const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+        const chars = text.length;
+        document.getElementById('word-count').innerText = `Слов: ${words} | Символов: ${chars}`;
+    }
+
+    function setupAutoSave() {
+        let timer;
+        editor.addEventListener('input', () => {
+            updateWordCount();
+            clearTimeout(timer);
+            updateNetIndicator(true, "ПЕЧАТАЕТЕ...");
+            timer = setTimeout(performSave, 2000); // Автосохранение через 2 сек после задержки
+        });
+    }
+
+    function initDragAndDrop() {
+        editor.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            editor.style.boxShadow = "0 0 20px var(--accent)";
+        });
+
+        editor.addEventListener('dragleave', () => {
+           // editor.style.boxShadow = var(--shadow);
+        });
+
+        editor.addEventListener('drop', (e) => {
+            e.preventDefault();
+          //  editor.style.boxShadow = var(--shadow);
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = `<img src="${event.target.result}">`;
+                    exec('insertHTML', img);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.innerText = msg;
+        toast.style.position = "fixed";
+        toast.style.top = "20px";
+        toast.style.left = "50%";
+        toast.style.transform = "translateX(-50%)";
+        toast.style.background = "var(--text-dark)";
+        toast.style.color = "#fff";
+        toast.style.padding = "10px 20px";
+        toast.style.borderRadius = "20px";
+        toast.style.zIndex = "3000";
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+
+    // Обработка горячих клавиш (как в Google Docs)
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey) {
+            switch (e.key.toLowerCase()) {
+                case 's':
+                    e.preventDefault();
+                    forceSave();
+                    break;
+                case 'b':
+                    e.preventDefault();
+                    exec('bold');
+                    break;
+                case 'i':
+                    e.preventDefault();
+                    exec('italic');
+                    break;
+            }
+        }
+    });
+
 </script>
 </body>
 </html>
